@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/deluxebrain/ansible-role-terraform.svg?branch=master)](https://travis-ci.org/deluxebrain/ansible-role-terraform)
 
-Terraform installer for Linux.
+Terraform and TFLint installer for Linux.
 
 ## Requirements
 
