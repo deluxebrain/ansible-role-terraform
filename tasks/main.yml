@@ -1,0 +1,34 @@
+---
+- name: Load variables for the target system
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_os_family | lower }}.yml"
+    - default.yml
+
+- name: Set apt to use https
+  become: yes
+  apt:
+    name: apt-transport-https
+    state: present
+
+- name: Install system dependencies
+  become: yes
+  package:
+    name: "{{ item }}"
+    state: present
+  register: result
+  retries: 3
+  until: result is succeeded
+  with_items: "{{ system_dependencies }}"
+
+- include_tasks: pre-terraform.yml
+
+- include_tasks: install-terraform.yml
+  when: "not terraform_installed.stat.exists or \
+    current_terraform_version.stdout.find(terraform_reference) == -1"
+
+- include_tasks: pre-tflint.yml
+
+- include_tasks: install-tflint.yml
+  when: "not tflint_installed.stat.exists or \
+    current_tflint_version.stdout.find(tflint_reference) == -1"

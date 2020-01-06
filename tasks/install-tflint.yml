@@ -1,0 +1,39 @@
+---
+- debug:
+    msg: "Version of tflint to install: {{ tflint_reference }}"
+
+- name: Install tflint
+  block:
+    - name: Create tflint temporary download directory
+      tempfile:
+        state: directory
+        suffix: tflint
+      register: tflint_temp_download_directory
+
+    - name: Download tflint package
+      get_url:
+        url: "{{ tflint_package_url }}"
+        dest: "{{ tflint_temp_download_directory.path }}"
+      register: tflint_download_path
+
+    - name: Remove current tflint version
+      file:
+        path: "{{ tflint_archive_path }}"
+        state: absent
+      when: tflint_installed.stat.exists
+
+    - name: Unzip tflint package to destination directory
+      become: true
+      unarchive:
+        src: "{{ tflint_download_path.dest }}"
+        dest: "{{ tflint_archive_dir }}"
+        copy: no
+        owner: root
+        group: root
+        mode: "0755"
+        creates: "{{ tflint_archive_path }}"
+
+    - name: Remove tflint temporary download directory
+      file:
+        path: "{{ tflint_temp_download_directory.path }}"
+        state: absent

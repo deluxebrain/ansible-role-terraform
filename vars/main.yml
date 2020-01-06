@@ -1,0 +1,23 @@
+---
+terraform_reference: >-
+  {{ (terraform_version == 'latest') | ternary(terraform_latest_version, terraform_version) }}
+
+terraform_version_lookup_url: https://api.github.com/repos/hashicorp/terraform/releases/latest
+
+terraform_package_url: "https://releases.hashicorp.com/terraform/\
+  {{ terraform_reference }}/\
+  terraform_\
+  {{ terraform_reference }}_\
+  {{ ansible_system | lower }}_\
+  {{ (ansible_architecture == 'x86_64') | ternary('amd64', '386') }}.zip"
+
+tflint_reference: >-
+  {{ (tflint_version == 'latest') | ternary(tflint_latest_version, tflint_version) }}
+
+tflint_version_lookup_url: https://api.github.com/repos/wata727/tflint/releases/latest
+
+tflint_package_url: "https://github.com/wata727/tflint/releases/download/\
+  v{{ tflint_reference }}/\
+  tflint_\
+  {{ ansible_system | lower }}_\
+  {{ (ansible_architecture == 'x86_64') | ternary('amd64', '386') }}.zip"

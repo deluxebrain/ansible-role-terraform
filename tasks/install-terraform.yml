@@ -1,0 +1,39 @@
+---
+- debug:
+    msg: "Version of terraform to install: {{ terraform_reference }}"
+
+- name: Install terraform
+  block:
+    - name: Create terraform temporary download directory
+      tempfile:
+        state: directory
+        suffix: terraform
+      register: terraform_temp_download_directory
+
+    - name: Download terraform package
+      get_url:
+        url: "{{ terraform_package_url }}"
+        dest: "{{ terraform_temp_download_directory.path }}"
+      register: terraform_download_path
+
+    - name: Remove current terraform version
+      file:
+        path: "{{ terraform_archive_path }}"
+        state: absent
+      when: terraform_installed.stat.exists
+
+    - name: Unzip terraform package to destination directory
+      become: true
+      unarchive:
+        src: "{{ terraform_download_path.dest }}"
+        dest: "{{ terraform_archive_dir }}"
+        copy: no
+        owner: root
+        group: root
+        mode: "0755"
+        creates: "{{ terraform_archive_path }}"
+
+    - name: Remove terraform temporary download directory
+      file:
+        path: "{{ terraform_temp_download_directory.path }}"
+        state: absent

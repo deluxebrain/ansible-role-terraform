@@ -1,0 +1,8 @@
+---
+terraform_version: latest
+terraform_archive_dir: /usr/local/bin
+terraform_archive_path: /usr/local/bin/terraform
+
+tflint_version: latest
+tflint_archive_dir: /usr/local/bin
+tflint_archive_path: /usr/local/bin/tflint
