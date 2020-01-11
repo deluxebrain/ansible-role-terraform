@@ -13,12 +13,18 @@ None.
 All of the listed variables are defined in `defaults/main.yml`.
 Individual variables can be set or overridden by setting them in a playbook for this role.
 
-- `terraform_version`: ( default latest ) Terraform version to install
-- `terraform_archive_dir`: ( default /usr/local/bin ) Terraform installation directory
-- `terraform_archive_path`: ( default /usr/local/bin/terraform ) Terraform installation path
-- `tflint_version`: ( default latest ) TFLint version to install
-- `tflint_archive_dir`: ( default /usr/local/bin ) TFLint installation directory
-- `tflint_archive_path`: ( default /usr/local/bin/terraform ) TFLint installation path
+- `terraform_version`: ( default: latest )
+  - Terraform version to install
+- `terraform_archive_dir`: ( default: /usr/local/bin )
+  - Terraform installation directory
+- `terraform_archive_path`: ( default: /usr/local/bin/terraform )
+  - Terraform installation path
+- `tflint_version`: ( default: latest )
+  - TFLint version to install
+- `tflint_archive_dir`: ( default: /usr/local/bin )
+  - TFLint installation directory
+- `tflint_archive_path`: ( default: /usr/local/bin/terraform )
+  - TFLint installation path
 
 ## Dependencies
 
@@ -26,13 +32,13 @@ None.
 
 ## Example Playbook
 
-    - hosts: servers
-      vars:
+```yaml
+- hosts: servers
+  roles:
+      - deluxebrain.terraform
         terraform_version: 0.12.18
-        tflint_version: 0.13.4    
-      roles:
-         - deluxebrain.terraform
-         
+        tflint_version: 0.13.4
+```
 
 ## License
 
