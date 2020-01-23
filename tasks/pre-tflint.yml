@@ -7,7 +7,7 @@
 - name: Determine current tflint version
   block:
     - name: Get latest tflint version
-      shell: "{{ tflint_archive_path }} --version | head -n1"
+      shell: "{{ tflint_archive_path }} --version | head -n1" # noqa 305
       register: current_tflint_version
       changed_when: False
       failed_when: False
