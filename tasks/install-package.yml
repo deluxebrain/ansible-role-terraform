@@ -1,0 +1,87 @@
+---
+- name: Get {{ item.name }} latest version
+  block:
+    - name: Get latest version json
+      uri:
+        url: "{{ item.version_lookup_url }}"
+        return_content: yes
+        status_code: 200
+      register: version_lookup_response
+
+    - name: Process latest version json
+      set_fact:
+        latest_version: >-
+          {{ lookup('vars', '{{ item.name }}_response_processor') }}
+  when: item.version | lower == 'latest'
+
+- name: Form {{ item.name }} version
+  block:
+    - name: Resolve version
+      set_fact:
+        resolved_version: >-
+          {{ (item.version | lower == 'latest') | ternary(latest_version, item.version) }}
+
+    - name: Show resolved version
+      debug:
+        msg: "Version of {{ item.name }} to install: {{ resolved_version }}"
+
+- name: Determine if {{ item.name }} already installed
+  stat:
+    path: >-
+      {{ item.install_dir }}/{{ item.name }}
+  register: package_installed
+
+- name: Determine current package version
+  block:
+    - name: Get latest package version
+      # noqa 305
+      shell: >-
+        {{ item.install_dir }}/{{ item.version_extractor }}
+      register: current_package_version
+      changed_when: False
+      failed_when: False
+
+    - name: Show currently installed version
+      debug:
+        msg: >-
+          Currently installed package version: {{ current_package_version.stdout }}
+  when: package_installed.stat.exists
+
+- name: Install {{ item.name }} package
+  block:
+    - name: Create temporary download directory
+      tempfile:
+        state: directory
+        suffix: "{{ item.name }}"
+      register: download_directory
+
+    - name: Download {{ item.name }} package
+      get_url:
+        url: "{{ lookup('vars', '{{ item.name }}_package_url') }}"
+        dest: "{{ download_directory.path }}"
+      register: download_path
+
+    - name: Unzip {{ item.name }} package to destination directory
+      become: true
+      unarchive:
+        src: "{{ download_path.dest }}"
+        dest: "{{ item.install_dir }}"
+        copy: no
+        owner: root
+        group: root
+        mode: 0755
+      when: item.unarchive | bool
+
+    - name: Copy {{ item.name }} package to destination directory
+      become: true
+      copy:
+        src: "{{ download_path.dest }}"
+        dest: >-
+          {{ item.install_dir }}/{{ item.name }}
+        owner: root
+        group: root
+        mode: 0755
+        remote_src: yes
+      when: not item.unarchive | bool
+  when: "not package_installed.stat.exists or \
+    resolved_version.find(current_package_version.stdout) == -1"

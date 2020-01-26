@@ -1,7 +1,23 @@
 ---
 - name: Converge
   hosts: all
+
+  pre_tasks:
+    - name: Update apt cache.
+      apt: update_cache=true cache_valid_time=600
+      when: ansible_os_family | lower == 'debian'
+
   roles:
     - role: ansible-role-terraform
       terraform_version: 0.12.18
+      install_tflint: yes
       tflint_version: 0.13.4
+
+  post_tasks:
+    - name: Verify terraform is installed
+      shell: terraform --version    # noqa 305
+      changed_when: false
+
+    - name: Verify tflint is installed
+      shell: tflint --version       # noqa 305
+      changed_when: false

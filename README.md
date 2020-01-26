@@ -15,16 +15,14 @@ Individual variables can be set or overridden by setting them in a playbook for 
 
 - `terraform_version`: ( default: latest )
   - Terraform version to install
-- `terraform_archive_dir`: ( default: /usr/local/bin )
+- `terraform_install_dir`: ( default: /usr/local/bin )
   - Terraform installation directory
-- `terraform_archive_path`: ( default: /usr/local/bin/terraform )
-  - Terraform installation path
+- `install_tflint`: ( default: yes )
+  - Whether to install TFLint
 - `tflint_version`: ( default: latest )
   - TFLint version to install
-- `tflint_archive_dir`: ( default: /usr/local/bin )
+- `tflint_install_dir`: ( default: /usr/local/bin )
   - TFLint installation directory
-- `tflint_archive_path`: ( default: /usr/local/bin/terraform )
-  - TFLint installation path
 
 ## Dependencies
 

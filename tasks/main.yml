@@ -21,14 +21,7 @@
   until: result is succeeded
   with_items: "{{ system_dependencies }}"
 
-- include_tasks: pre-terraform.yml
-
-- include_tasks: install-terraform.yml
-  when: "not terraform_installed.stat.exists or \
-    current_terraform_version.stdout.find(terraform_reference) == -1"
-
-- include_tasks: pre-tflint.yml
-
-- include_tasks: install-tflint.yml
-  when: "not tflint_installed.stat.exists or \
-    current_tflint_version.stdout.find(tflint_reference) == -1"
+- name: Install packages
+  include: install-package.yml
+  with_items: "{{ packages }}"
+  when: packages | length > 0 and item.install | bool

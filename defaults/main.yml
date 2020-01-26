@@ -1,8 +1,7 @@
 ---
 terraform_version: latest
-terraform_archive_dir: /usr/local/bin
-terraform_archive_path: /usr/local/bin/terraform
+terraform_install_dir: ""
 
+install_tflint: yes
 tflint_version: latest
-tflint_archive_dir: /usr/local/bin
-tflint_archive_path: /usr/local/bin/tflint
+tflint_install_dir: ""

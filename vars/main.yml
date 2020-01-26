@@ -1,23 +1,40 @@
 ---
-terraform_reference: >-
-  {{ (terraform_version == 'latest') | ternary(terraform_latest_version, terraform_version) }}
+platform_architecture: "{{ (ansible_architecture == 'x86_64') | ternary('amd64', '386') }}"
 
-terraform_version_lookup_url: https://api.github.com/repos/hashicorp/terraform/releases/latest
+packages:
+  - name: terraform
+    install: yes
+    version: "{{ (terraform_version) }}"
+    version_lookup_url: https://api.github.com/repos/hashicorp/terraform/releases/latest
+    install_dir: "{{ (terraform_install_dir is defined and terraform_install_dir | length > 0) |\
+      ternary(terraform_install_dir, '/usr/local/bin') }}"
+    version_extractor: >-
+      terraform --version | head -n1 | sed -E 's/.*v([0-9\.]+).*/\1/'
+    unarchive: yes
+  - name: tflint
+    install: "{{ install_tflint }}"
+    version: >-
+      {{ (tflint_version | lower == 'latest') | ternary('latest', 'v' + tflint_version) }}
+    version_lookup_url: https://api.github.com/repos/wata727/tflint/releases/latest
+    install_dir: "{{ (tflint_install_dir is defined and tflint_install_dir | length > 0) |\
+      ternary(tflint_install_dir, '/usr/local/bin') }}"
+    version_extractor: >-
+      tflint --version | head -n1 | cut -d' ' -f3
+    unarchive: yes
 
+terraform_response_processor: >-
+  {{ version_lookup_response.json | json_query('tag_name') }}
 terraform_package_url: "https://releases.hashicorp.com/terraform/\
-  {{ terraform_reference }}/\
+  {{ resolved_version }}/\
   terraform_\
-  {{ terraform_reference }}_\
+  {{ resolved_version }}_\
   {{ ansible_system | lower }}_\
-  {{ (ansible_architecture == 'x86_64') | ternary('amd64', '386') }}.zip"
+  {{ platform_architecture }}.zip"
 
-tflint_reference: >-
-  {{ (tflint_version == 'latest') | ternary(tflint_latest_version, tflint_version) }}
-
-tflint_version_lookup_url: https://api.github.com/repos/wata727/tflint/releases/latest
-
+tflint_response_processor: >-
+  {{ version_lookup_response.json | json_query('tag_name') }}
 tflint_package_url: "https://github.com/wata727/tflint/releases/download/\
-  v{{ tflint_reference }}/\
+  {{ resolved_version }}/\
   tflint_\
   {{ ansible_system | lower }}_\
-  {{ (ansible_architecture == 'x86_64') | ternary('amd64', '386') }}.zip"
+  {{ platform_architecture }}.zip"
