@@ -1,5 +1,11 @@
 ---
-- name: Get {{ item.name }} latest version
+- name: Resolve package name
+  set_fact:
+    package_name: "\
+      {{ (item.package_name is defined and item.package_name | length > 0) |\
+      ternary(item.package_name, item.name) }}"
+
+- name: Get {{ package_name }} latest version
   block:
     - name: Get latest version json
       uri:
@@ -14,7 +20,7 @@
           {{ lookup('vars', '{{ item.name }}_response_processor') }}
   when: item.version | lower == 'latest'
 
-- name: Form {{ item.name }} version
+- name: Form {{ package_name }} version
   block:
     - name: Resolve version
       set_fact:
@@ -23,12 +29,12 @@
 
     - name: Show resolved version
       debug:
-        msg: "Version of {{ item.name }} to install: {{ resolved_version }}"
+        msg: "Version of {{ package_name }} to install: {{ resolved_version }}"
 
-- name: Determine if {{ item.name }} already installed
+- name: Determine if {{ package_name }} already installed
   stat:
     path: >-
-      {{ item.install_dir }}/{{ item.name }}
+      {{ item.install_dir }}/{{ package_name }}
   register: package_installed
 
 - name: Determine current package version
@@ -47,21 +53,21 @@
           Currently installed package version: {{ current_package_version.stdout }}
   when: package_installed.stat.exists
 
-- name: Install {{ item.name }} package
+- name: Install {{ package_name }} package
   block:
     - name: Create temporary download directory
       tempfile:
         state: directory
-        suffix: "{{ item.name }}"
+        suffix: "{{ package_name }}"
       register: download_directory
 
-    - name: Download {{ item.name }} package
+    - name: Download {{ package_name }} package
       get_url:
         url: "{{ lookup('vars', '{{ item.name }}_package_url') }}"
         dest: "{{ download_directory.path }}"
       register: download_path
 
-    - name: Unzip {{ item.name }} package to destination directory
+    - name: Unzip {{ package_name }} package to destination directory
       become: true
       unarchive:
         src: "{{ download_path.dest }}"
@@ -72,12 +78,12 @@
         mode: 0755
       when: item.unarchive | bool
 
-    - name: Copy {{ item.name }} package to destination directory
+    - name: Copy {{ package_name }} package to destination directory
       become: true
       copy:
         src: "{{ download_path.dest }}"
         dest: >-
-          {{ item.install_dir }}/{{ item.name }}
+          {{ item.install_dir }}/{{ package_name }}
         owner: root
         group: root
         mode: 0755
