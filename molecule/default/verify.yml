@@ -1,0 +1,25 @@
+---
+- name: Verify
+  hosts: all
+
+  # Note: Role variables are not available during molecule test
+  # Therefore must redeclare here
+
+  tasks:
+    - name: "Verify terraform is installed"
+      shell: terraform --version    # noqa 305
+      register: terraform_version_command
+
+    - assert:
+        that: "terraform_version_command.rc == 0"
+        fail_msg: "terraform is not installed"
+        success_msg: "terraform is installed"
+
+    - name: "Verify tflint is installed"
+      shell: tflint --version    # noqa 305
+      register: tflint_version_command
+
+    - assert:
+        that: "tflint_version_command.rc == 0"
+        fail_msg: "tflint is not installed"
+        success_msg: "tflint is installed"

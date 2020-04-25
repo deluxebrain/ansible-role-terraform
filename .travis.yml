@@ -1,7 +1,6 @@
 ---
 language: python
 python:
-  - "2.7"
   - "3.7"
 services:
   - docker
@@ -9,10 +8,7 @@ services:
 env:
   matrix:
     - MOLECULE_DISTRO=ubuntu:18.04
-    - MOLECULE_DISTRO=ubuntu:19.04
-
-install:
-  pip install molecule docker jmespath
+    # - MOLECULE_DISTRO=ubuntu:20.04
 
 script:
   - molecule --version
