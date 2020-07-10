@@ -1,5 +1,5 @@
 ---
-terraform_version: latest
+terraform_version: "latest"
 terraform_install_dir: ""
 
 install_tflint: yes
